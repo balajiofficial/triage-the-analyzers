@@ -17,6 +17,7 @@
              code it no longer applies to. -->
         <exclude name="UncommentedEmptyConstructor"/>
         <exclude name="UnnecessaryConstructor"/>
+        <exclude name="ControlStatementBraces"/>
     </rule>
 
     <!-- D2: not on @Entity classes. JPA requires every entity to have a public or protected no-arg
@@ -35,6 +36,20 @@
         <properties>
             <property name="violationSuppressXPath"
                       value="ancestor-or-self::ClassDeclaration[1][pmd-java:hasAnnotation('jakarta.persistence.Entity')]"/>
+        </properties>
+    </rule>
+
+    <!-- D3: braces are required, except for a one-line guard clause: an if with no else whose body
+         is a single return, continue, break or throw on the same line as the if, such as
+         "if (thread == null) return;". The risk this rule exists for is a second statement indented
+         under a braceless if as though it were inside it; that cannot happen when the body sits on
+         the if's own line and ends control flow. 28 of the 30 findings on 2026-11-01 were this
+         shape. Any other braceless body, including a one-line one that is not a jump
+         (Section.addTeam's "if (...) this.teams.add(team);"), is still reported. -->
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="self::*[self::ReturnStatement or self::ContinueStatement or self::BreakStatement or self::ThrowStatement][parent::IfStatement[@Else = false()]][@BeginLine = parent::IfStatement/@BeginLine]"/>
         </properties>
     </rule>
 </ruleset>
