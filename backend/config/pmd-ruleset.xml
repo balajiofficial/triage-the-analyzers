@@ -13,5 +13,56 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
     <description>PMD quickstart, with Project Pulse's decisions.</description>
     <rule ref="rulesets/java/quickstart.xml">
+        <!-- These are narrowed, not dropped: each is re-added below with the part of the
+             code it no longer applies to. -->
+        <exclude name="UncommentedEmptyConstructor"/>
+        <exclude name="UnnecessaryConstructor"/>
+        <exclude name="ControlStatementBraces"/>
+        <exclude name="GuardLogStatement"/>
+    </rule>
+
+    <!-- D2: not on @Entity classes. JPA requires every entity to have a public or protected no-arg
+         constructor (Jakarta Persistence 3.1, section 2.1), so the empty constructor on an entity is
+         there for Hibernate, and @Entity on the class already says so. We keep it written out even
+         when it is the only constructor: if someone later adds an all-args constructor, the implicit
+         one disappears, the code still compiles, and the mistake only shows up at runtime.
+         Both rules still apply to every class that is not an entity. -->
+    <rule ref="category/java/documentation.xml/UncommentedEmptyConstructor">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[1][pmd-java:hasAnnotation('jakarta.persistence.Entity')]"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/UnnecessaryConstructor">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="ancestor-or-self::ClassDeclaration[1][pmd-java:hasAnnotation('jakarta.persistence.Entity')]"/>
+        </properties>
+    </rule>
+
+    <!-- D3: braces are required, except for a one-line guard clause: an if with no else whose body
+         is a single return, continue, break or throw on the same line as the if, such as
+         "if (thread == null) return;". The risk this rule exists for is a second statement indented
+         under a braceless if as though it were inside it; that cannot happen when the body sits on
+         the if's own line and ends control flow. 28 of the 30 findings on 2026-11-01 were this
+         shape. Any other braceless body, including a one-line one that is not a jump
+         (Section.addTeam's "if (...) this.teams.add(team);"), is still reported. -->
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="self::*[self::ReturnStatement or self::ContinueStatement or self::BreakStatement or self::ThrowStatement][parent::IfStatement[@Else = false()]][@BeginLine = parent::IfStatement/@BeginLine]"/>
+        </properties>
+    </rule>
+
+    <!-- D4: only debug and trace calls need a guard. Project Pulse sets no logging level, so Spring
+         Boot's default of INFO applies in every profile (application*.yml has no logging key): an
+         info, warn or error call always runs, and an isInfoEnabled() guard around it would always
+         be true. Every log call uses SLF4J {} placeholders (none concatenates), so the only cost a
+         guard can save is evaluating the arguments of a call below INFO. -->
+    <rule ref="category/java/bestpractices.xml/GuardLogStatement">
+        <properties>
+            <property name="logLevels" value="trace,debug"/>
+            <property name="guardsMethods" value="isTraceEnabled,isDebugEnabled"/>
+        </properties>
     </rule>
 </ruleset>
