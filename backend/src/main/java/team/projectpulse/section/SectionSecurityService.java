@@ -75,7 +75,7 @@ public class SectionSecurityService {
         boolean hasInstructorRole = this.userUtils.hasRole("ROLE_instructor");
         if (hasStudentRole) {
             Student student = this.studentRepository.findById(userIdFromJwt).orElse(null);
-            if (student == null) { // NOPMD - the fail-closed guard every check in this class uses (see class Javadoc); folding it into one && return would only break that pattern
+            if (student == null) { // NOPMD - the fail-closed guard every check in this class uses (see class Javadoc)
                 return false;
             }
             // Check if the student's sectionId matches the sectionId from the request URI

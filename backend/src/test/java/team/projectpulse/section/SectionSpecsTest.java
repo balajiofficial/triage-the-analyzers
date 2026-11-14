@@ -34,8 +34,8 @@ class SectionSpecsTest {
 
     /**
      * The search lowercases the column in SQL (criteriaBuilder.lower) and the search text in Java, and the two
-     * have to agree. In a Turkish locale Java lowercases "I" to a dotless "ı", which no lowercased section name
-     * contains, so searching "INTRO" would find nothing.
+     * have to agree. In a Turkish locale Java lowercases "I" to a dotless "ı", while MySQL's lower() keeps "i";
+     * under utf8mb4_0900_ai_ci the pattern "%ıntro%" then matches no section named "Intro ...".
      */
     @Test
     @SuppressWarnings("unchecked")
