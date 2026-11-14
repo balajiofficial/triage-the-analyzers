@@ -12,7 +12,8 @@
          wants a copy:
            - @Entity getters, setters and constructors (144 findings). Hibernate swaps a mapped collection for its
              own PersistentBag or PersistentSet and tracks changes through that instance; a getter that
-             returns a copy breaks cascades and orphanRemoval, as in section.getStudents().add(student).
+             returns a copy turns writes through it into no-ops, as in TeamService.transferStudent's
+             from.getStudents().remove(student) and to.getStudents().add(student).
            - Constructors of Spring beans (27, EI_EXPOSE_REP2 on an injected field). The injected service is
              a singleton, and sharing it is the point of dependency injection.
            - DTO records and report classes (44: records, PeerEvaluationAverage, WeeklyPeerEvaluationReport) built

@@ -25,7 +25,7 @@
          constructor (Jakarta Persistence 3.1, section 2.1), so the empty constructor on an entity is
          there for Hibernate, and @Entity on the class already says so. We keep it written out even
          when it is the only constructor: if someone later adds an all-args constructor, the implicit
-         one disappears, the code still compiles, and Hibernate fails only when it loads a row.
+         one disappears, the code still compiles, and the mistake only shows up at runtime.
          Both rules still apply to every class that is not an entity. -->
     <rule ref="category/java/documentation.xml/UncommentedEmptyConstructor">
         <properties>
